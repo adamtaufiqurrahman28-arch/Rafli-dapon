@@ -1,0 +1,61 @@
+{% extends 'orders/admin_base.html' %}
+{% load order_extras %}
+{% block title %}Daftar Pesanan • {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <div>
+    <h1 class="page-title mb-1">Daftar Pesanan</h1>
+    <p class="text-muted mb-0">Kelola harga, status, dan pembayaran.</p>
+  </div>
+  <a href="{% url 'admin_recap' %}" class="btn btn-dark">Copy Rekap</a>
+</div>
+
+<div class="panel mb-4">
+  <form class="row g-2" method="get">
+    <div class="col-md-4"><input class="form-control" name="q" value="{{ q }}" placeholder="Cari nama / kode / pesanan"></div>
+    <div class="col-md-3"><input class="form-control" type="date" name="date" value="{{ date }}"></div>
+    <div class="col-md-3">
+      <select class="form-select" name="status">
+        <option value="">Semua Status</option>
+        <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+        <option value="price_set" {% if status == 'price_set' %}selected{% endif %}>Harga Ditetapkan</option>
+        <option value="waiting_payment" {% if status == 'waiting_payment' %}selected{% endif %}>Menunggu Pembayaran</option>
+        <option value="paid" {% if status == 'paid' %}selected{% endif %}>Sudah Bayar</option>
+        <option value="completed" {% if status == 'completed' %}selected{% endif %}>Selesai</option>
+      </select>
+    </div>
+    <div class="col-md-2"><button class="btn btn-dark w-100">Filter</button></div>
+  </form>
+</div>
+
+<div class="panel">
+  <div class="table-responsive">
+    <table class="table clean-table align-middle">
+      <thead><tr><th>No</th><th>Nama</th><th>Resto</th><th>Pesanan</th><th>Total</th><th>Bayar</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for order in page.object_list %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td><strong>{{ order.customer_name }}</strong><br><small class="text-muted">{{ order.order_code }}</small></td>
+            <td>{{ order.restaurant_label }}</td>
+            <td>{% for item in order.items.all|slice:':2' %}<div>{{ item.item_name }}</div>{% endfor %}</td>
+            <td>{{ order.total_price|rupiah }}</td>
+            <td><span class="status-pill {{ order.payment_status|status_class }}">{{ order.get_payment_status_display }}</span></td>
+            <td><span class="status-pill {{ order.order_status|status_class }}">{{ order.get_order_status_display }}</span></td>
+            <td><a href="{% url 'admin_order_detail' order.pk %}" class="btn btn-sm btn-outline-secondary">Detail</a></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8" class="text-muted">Belum ada data.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if page.has_other_pages %}
+    <div class="d-flex justify-content-end gap-2 mt-3">
+      {% if page.has_previous %}<a class="btn btn-sm btn-outline-secondary" href="?page={{ page.previous_page_number }}">Prev</a>{% endif %}
+      <span class="btn btn-sm btn-dark">{{ page.number }}</span>
+      {% if page.has_next %}<a class="btn btn-sm btn-outline-secondary" href="?page={{ page.next_page_number }}">Next</a>{% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

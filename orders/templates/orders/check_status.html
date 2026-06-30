@@ -1,0 +1,35 @@
+{% extends 'orders/base.html' %}
+{% load order_extras %}
+{% block title %}Cek Status • {{ APP_NAME }}{% endblock %}
+{% block content %}
+<section class="container py-5">
+  <div class="panel">
+    <h1 class="page-title">Cek Status Pesanan</h1>
+    <form class="row g-2 mb-4" method="get">
+      <div class="col-md-10"><input class="form-control form-control-lg" name="q" value="{{ query }}" placeholder="Masukkan kode order / nama / WhatsApp"></div>
+      <div class="col-md-2"><button class="btn btn-dark btn-lg w-100">Cari</button></div>
+    </form>
+    {% if query %}
+      <div class="table-responsive">
+        <table class="table align-middle clean-table">
+          <thead><tr><th>Kode</th><th>Nama</th><th>Resto</th><th>Total</th><th>Status</th><th>Pembayaran</th></tr></thead>
+          <tbody>
+          {% for order in orders %}
+            <tr>
+              <td>{{ order.order_code }}</td>
+              <td>{{ order.customer_name }}</td>
+              <td>{{ order.restaurant_label }}</td>
+              <td>{{ order.total_price|rupiah }}</td>
+              <td><span class="status-pill {{ order.order_status|status_class }}">{{ order.get_order_status_display }}</span></td>
+              <td><span class="status-pill {{ order.payment_status|status_class }}">{{ order.get_payment_status_display }}</span></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="text-muted">Belum ada pesanan yang cocok.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'orders/base.html' %}
+{% load order_extras %}
+{% block title %}Pesanan Berhasil • {{ APP_NAME }}{% endblock %}
+{% block content %}
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="panel success-panel">
+        <span class="eyebrow">Pesanan terkirim</span>
+        <h1 class="mb-2">Terima kasih, {{ order.customer_name }}.</h1>
+        <p class="text-muted">Kode order kamu: <strong>{{ order.order_code }}</strong>. Simpan kode ini untuk cek status.</p>
+        <div class="order-summary mt-4">
+          {% for item in order.items.all %}
+            <div class="summary-row">
+              <div>
+                <strong>{{ item.item_name }}</strong>
+                {% if item.notes %}<small>{{ item.notes }}</small>{% endif %}
+              </div>
+              <span>{% if item.unit_price %}{{ item.subtotal|rupiah }}{% else %}Harga menyusul{% endif %}</span>
+            </div>
+          {% endfor %}
+          <div class="summary-total">
+            <span>Total sementara</span>
+            <strong>{{ order.total_price|rupiah }}</strong>
+          </div>
+        </div>
+        <div class="payment-box mt-4">
+          <div>
+            <span>Metode pembayaran</span>
+            <strong>{{ order.get_payment_method_display }}</strong>
+          </div>
+          <div>
+            <span>Status</span>
+            <strong>{{ order.get_payment_status_display }}</strong>
+          </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+          <a href="{% url 'check_status' %}?q={{ order.order_code }}" class="btn btn-dark">Cek Status</a>
+          <a href="{% url 'public_order' %}" class="btn btn-outline-secondary">Order lagi</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

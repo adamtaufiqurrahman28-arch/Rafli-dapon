@@ -1,0 +1,20 @@
+{% extends 'orders/admin_base.html' %}
+{% block title %}Rekap Pesanan • {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <div>
+    <h1 class="page-title mb-1">Rekap Pesanan Hari Ini</h1>
+    <p class="text-muted mb-0">Copy format siap kirim ke WhatsApp.</p>
+  </div>
+  <button class="btn btn-dark" data-copy-target="recapText">Copy Rekap</button>
+</div>
+<div class="panel mb-4">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-md-4"><label class="form-label">Tanggal</label><input class="form-control" type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}"></div>
+    <div class="col-md-2"><button class="btn btn-outline-secondary w-100">Filter</button></div>
+  </form>
+</div>
+<div class="panel">
+  <textarea id="recapText" class="recap-box" readonly>{{ recap_text }}</textarea>
+</div>
+{% endblock %}

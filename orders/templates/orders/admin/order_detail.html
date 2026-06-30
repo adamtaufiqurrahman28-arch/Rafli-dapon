@@ -1,0 +1,68 @@
+{% extends 'orders/admin_base.html' %}
+{% load order_extras %}
+{% block title %}Detail Pesanan • {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="page-title mb-1">Detail Pesanan</h1>
+    <p class="text-muted mb-0">{{ order.order_code }}</p>
+  </div>
+  <a href="{% url 'admin_orders' %}" class="btn btn-outline-secondary">Kembali</a>
+</div>
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="panel mb-4">
+      <h2 class="section-title">Informasi Pemesan</h2>
+      <div class="row g-3 info-grid">
+        <div class="col-md-6"><span>Nama</span><strong>{{ order.customer_name }}</strong></div>
+        <div class="col-md-6"><span>WhatsApp</span><strong>{{ order.whatsapp|default:'-' }}</strong></div>
+        <div class="col-md-6"><span>Divisi</span><strong>{{ order.division|default:'-' }}</strong></div>
+        <div class="col-md-6"><span>Resto</span><strong>{{ order.restaurant_label }}</strong></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2 class="section-title">Item Pesanan</h2>
+      <div class="table-responsive">
+        <table class="table clean-table align-middle">
+          <thead><tr><th>Menu</th><th>Qty</th><th>Catatan</th><th>Harga</th><th>Subtotal</th></tr></thead>
+          <tbody>
+            {% for item in order.items.all %}
+              <tr>
+                <td>{{ item.item_name }}</td>
+                <td>{{ item.qty }}</td>
+                <td>{{ item.notes|default:'-' }}</td>
+                <td>{% if item.unit_price %}{{ item.unit_price|rupiah }}{% else %}Menyusul{% endif %}</td>
+                <td>{{ item.subtotal|rupiah }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="summary-total mt-3">
+        <span>Total Pesanan</span>
+        <strong>{{ order.total_price|rupiah }}</strong>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="panel">
+      <h2 class="section-title">Update Pesanan</h2>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3"><label class="form-label">Harga Total</label>{{ form.total_price }}</div>
+        <div class="mb-3"><label class="form-label">Metode</label>{{ form.payment_method }}</div>
+        <div class="mb-3"><label class="form-label">Status Pembayaran</label>{{ form.payment_status }}</div>
+        <div class="mb-3"><label class="form-label">Status Order</label>{{ form.order_status }}</div>
+        <div class="mb-3"><label class="form-label">Catatan Admin</label>{{ form.admin_notes }}</div>
+        {% if order.proof_image %}
+          <div class="mb-3">
+            <label class="form-label">Bukti Pembayaran</label>
+            <div><a href="{{ order.proof_image.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat bukti</a></div>
+          </div>
+        {% endif %}
+        <button class="btn btn-dark w-100">Simpan Perubahan</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

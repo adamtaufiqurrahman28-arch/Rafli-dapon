@@ -1,0 +1,9 @@
+.env
+venv/
+__pycache__/
+*.pyc
+*.sqlite3
+media/proofs/*
+!media/proofs/.gitkeep
+staticfiles/
+.DS_Store

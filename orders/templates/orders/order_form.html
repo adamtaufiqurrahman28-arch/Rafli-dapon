@@ -1,0 +1,133 @@
+{% extends 'orders/base.html' %}
+{% load order_extras %}
+{% block title %}Order Makan Siang • {{ APP_NAME }}{% endblock %}
+{% block content %}
+<section class="container py-4 py-lg-5">
+  <div class="hero-card mb-4">
+    <div>
+      <span class="eyebrow">Order hari ini</span>
+      <h1>Pesan makan siang tanpa list WhatsApp manual.</h1>
+      <p>Pilih menu yang sudah jelas atau tulis order custom untuk Bu Nani, Padang, Resto Ayam, dan lainnya.</p>
+    </div>
+    <div class="hero-info">
+      <div><span>Waktu pesan</span><strong>{{ settings.order_window }}</strong></div>
+      <hr>
+      <div><span>Waktu pengambilan</span><strong>{{ settings.pickup_window }}</strong></div>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="row g-4 align-items-start">
+    {% csrf_token %}
+    <div class="col-lg-4">
+      <div class="panel sticky-lg-top order-form-panel">
+        <h2 class="section-title">Data Pemesan</h2>
+        <div class="mb-3">
+          <label class="form-label">Nama</label>
+          {{ form.customer_name }}
+          {% for error in form.customer_name.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">No. WhatsApp</label>
+          {{ form.whatsapp }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Divisi / Bagian</label>
+          {{ form.division }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Pilih Resto Utama</label>
+          {{ form.restaurant }}
+          <div class="form-hint">Untuk order a la carte bebas, pilih resto lalu tulis detail di bawah.</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Nama resto custom</label>
+          {{ form.custom_restaurant_name }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Order custom / catatan detail</label>
+          {{ form.custom_order }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Metode Pembayaran</label>
+          {{ form.payment_method }}
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Upload bukti bayar</label>
+          {{ form.proof_image }}
+          <div class="form-hint">Bisa dikosongkan dulu, admin tetap bisa konfirmasi manual.</div>
+        </div>
+        <button type="submit" class="btn btn-dark w-100 btn-lg">Submit Pesanan</button>
+      </div>
+
+      <div class="panel mt-4 payment-panel">
+        <h2 class="section-title">Info Pembayaran</h2>
+        <div class="payment-line">
+          <span>QRIS</span>
+          <strong>{{ settings.qris_name }}</strong>
+          <div class="qris-placeholder">QRIS bisa diupload admin nanti</div>
+        </div>
+        <div class="payment-line mt-3">
+          <span>Transfer</span>
+          <strong>{{ settings.bank_account }}</strong>
+          <small>A/N {{ settings.bank_owner }}</small>
+        </div>
+        <div class="payment-note mt-3">Pembayaran QRIS/transfer/cash akan divalidasi admin.</div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="panel">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
+          <div>
+            <h2 class="section-title mb-1">Menu Hari Ini</h2>
+            <p class="text-muted mb-0">Checklist menu yang sudah jelas. Kalau kompleks, tulis di order custom.</p>
+          </div>
+          <div class="search-box">
+            <input type="search" id="menuSearch" class="form-control" placeholder="Cari menu...">
+          </div>
+        </div>
+
+        <div class="accordion clean-accordion" id="menuAccordion">
+          {% regroup menu_items by restaurant as restaurant_groups %}
+          {% for group in restaurant_groups %}
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#resto-{{ group.grouper.id }}">
+                  <span>{{ group.grouper.name }}</span>
+                  <span class="mode-badge ms-2">{{ group.grouper.order_mode|upper }}</span>
+                </button>
+              </h2>
+              <div id="resto-{{ group.grouper.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#menuAccordion">
+                <div class="accordion-body">
+                  <div class="row g-3">
+                    {% for item in group.list %}
+                      <div class="col-md-6 menu-search-item" data-name="{{ item.name|lower }} {{ item.description|lower }}">
+                        <label class="menu-card h-100">
+                          <div class="d-flex gap-3">
+                            <input class="form-check-input mt-1 menu-checkbox" type="checkbox" name="menu_items" value="{{ item.id }}" data-price="{{ item.price|default:0 }}">
+                            <div class="flex-grow-1">
+                              <div class="menu-name">{{ item.name }}</div>
+                              <div class="menu-meta">{{ item.category.name|default:'Menu harian' }}</div>
+                              {% if item.description %}<div class="menu-desc">{{ item.description }}</div>{% endif %}
+                              <div class="d-flex align-items-center justify-content-between mt-3">
+                                <strong class="menu-price">{% if item.price %}{{ item.price|rupiah }}{% else %}Harga menyusul{% endif %}</strong>
+                                <input class="qty-input" type="number" name="qty_{{ item.id }}" value="1" min="1" aria-label="Qty {{ item.name }}">
+                              </div>
+                            </div>
+                          </div>
+                        </label>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <div class="empty-state">Belum ada menu aktif. Admin bisa tambah menu dari dashboard.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </form>
+</section>
+{% endblock %}

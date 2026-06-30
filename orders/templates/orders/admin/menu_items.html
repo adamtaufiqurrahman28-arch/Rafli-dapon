@@ -1,0 +1,33 @@
+{% extends 'orders/admin_base.html' %}
+{% load order_extras %}
+{% block title %}Kelola Menu • {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1 class="page-title mb-4">Kelola Menu</h1>
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="panel">
+      <h2 class="section-title">Tambah Menu</h2>
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-dark w-100">Simpan</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="panel">
+      <h2 class="section-title">Daftar Menu</h2>
+      <div class="table-responsive">
+        <table class="table clean-table align-middle">
+          <thead><tr><th>Menu</th><th>Resto</th><th>Harga</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for item in items %}
+              <tr><td>{{ item.name }}</td><td>{{ item.restaurant.name }}</td><td>{% if item.price %}{{ item.price|rupiah }}{% else %}Menyusul{% endif %}</td><td>{% if item.is_active %}Aktif{% else %}Nonaktif{% endif %}</td></tr>
+            {% empty %}<tr><td colspan="4" class="text-muted">Belum ada menu.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

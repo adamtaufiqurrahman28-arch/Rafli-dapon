@@ -1,0 +1,32 @@
+{% extends 'orders/admin_base.html' %}
+{% block title %}Kelola Resto • {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1 class="page-title mb-4">Kelola Resto</h1>
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="panel">
+      <h2 class="section-title">Tambah Resto</h2>
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-dark w-100">Simpan</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="panel">
+      <h2 class="section-title">Daftar Resto</h2>
+      <div class="table-responsive">
+        <table class="table clean-table align-middle">
+          <thead><tr><th>Resto</th><th>Mode</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for resto in restaurants %}
+              <tr><td>{{ resto.name }}</td><td>{{ resto.order_mode }}</td><td>{% if resto.is_active %}Aktif{% else %}Nonaktif{% endif %}</td></tr>
+            {% empty %}<tr><td colspan="3" class="text-muted">Belum ada resto.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
